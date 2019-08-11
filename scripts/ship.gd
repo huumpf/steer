@@ -37,9 +37,9 @@ func _ready():
 	r = BODY_RADIUS
 
 func _draw():
-#	pass
-    draw_line(Vector2(0,0), velocity * 10, Color(255, 0, 0), 1)
-    draw_line(Vector2(0,0), data.steerForce * 30, Color(0, 255, 0), 1)
+	pass
+#    draw_line(Vector2(0,0), velocity * 10, Color(255, 0, 0), 1)
+#    draw_line(Vector2(0,0), data.steerForce * 30, Color(0, 255, 0), 1)
 	
 ##################################################
 # PROCESS
