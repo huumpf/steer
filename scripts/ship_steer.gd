@@ -22,9 +22,9 @@ export var BRAKE_MULT = 0.8   # Brake // Multiplier for braking force
 # MOVE BASED ON STEER AND BRAKE
 
 func update():
-	host.steerForce = Vector2(steer.x, steer.y)
 	# Apply steer to Velocity
 	steer = steer.clamped(MAX_FORCE)
+	host.data.steerForce = steer
 	host.velocity += steer
 	# Move based on velocity
 	host.velocity = host.velocity.clamped(host.maxSpeed)
@@ -35,13 +35,24 @@ func update():
 #####################################################
 # BEHAVIOR ROUTER
 
-func seek(_target :String):
-	match _target:
-		"mouse": applySeek(get_viewport().get_mouse_position())
+func seek(_target):
+	if _target is Vector2:
+		applySeek(_target)
+
+func seekAndArrive(_target):
+	if _target is String:
+		match _target:
+			"mouse": applySeekAndArrive(get_viewport().get_mouse_position())
+			"center": applySeekAndArrive(Vector2(get_viewport().size.x-250, get_viewport().size.y/2))
+	if _target is Vector2:
+		applySeekAndArrive(_target)
 
 func flee(_target :String):
 	match _target:
-		"mouse": applyFlee(get_viewport().get_mouse_position())
+		"mouse":
+			var mousePos = get_viewport().get_mouse_position()
+			if position.distance_to(mousePos) < 100:
+				applyFlee(mousePos)
 
 func avoid(_obstacles :Array):
 	if _obstacles.size() != 0:
@@ -54,8 +65,15 @@ func wander():
 # APPLY BEHAVIORS TO THE ACCUMULATED STEERING FORCE
 
 # SEEK
-# Seek a target and arrive smoovely at it
+# Seek a target
 func applySeek(_target :Vector2):
+	var force = _target - host.position
+	force = force.normalized() * host.maxSpeed
+	steer += force
+	
+# SEEK AND ARRIVE
+# Seek a target and arrive smoovely at it
+func applySeekAndArrive(_target :Vector2):
 	var force = _target - host.position
 	var distance = force.length()
 	force = force.normalized() * host.maxSpeed
@@ -73,14 +91,14 @@ func applyFlee(_target :Vector2):
 
 # AVOID
 # Avoiding obstacles or other ships
-func applyAvoid(_obstacles :Array):
+func applyAvoid(_obstacles :Array): # Takes Vectors
 	var force
 	var mostThreatening = _obstacles[0]
 	if _obstacles.size() > 1:
 		for o in _obstacles:
-			if host.futurePos.distance_to(o.futurePos) < host.futurePos.distance_to(mostThreatening.futurePos):
+			if host.futurePos.distance_to(o) < host.futurePos.distance_to(mostThreatening):
 				mostThreatening = o
-	force = host.futurePos - mostThreatening.futurePos
+	force = host.futurePos - mostThreatening
 	steer += force
 
 # WANDER

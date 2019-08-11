@@ -1,9 +1,10 @@
 extends Node2D
 
 # GET NODES
-onready var sprite = get_node("Sprite") # Plane sprite
 onready var steer = get_node("Steer") # Scripts for steering behaviors
 onready var sense = get_node("Sense") # Scripts for sensing own surrounding
+onready var plan = get_node("Plan") # Scripts for making plans on what to do
+onready var data = get_node("Data") # Data storage
 
 # CONFIG
 export var MAX_DEFAULT_VELOCITY = 1 # Length on each axis
@@ -15,22 +16,18 @@ var id # Ship's id
 
 # MOVEMENT
 var velocity = Vector2() # Ship's current velocity
-var steerForce = Vector2()
 var maxSpeed # Maximum length of velocity vector
 
 # SENSORS AND DETECTION
-var r # Ship's radius for collisions detection
-var futurePos = Vector2()
-var otherShips = []
-var shipCollisions = []
+var r # Ship's radius for collision-detection
+var futurePos = Vector2() # Ships future position
+var shipCollisions = [] # Ship-collisions, given futurePos
+var wallCollisions = [] # Wall-collisions, given futurePos
 
 ##################################################
 # INIT
 
 func _ready():
-	# Init position
-	position.x = randf() * get_viewport().size.x
-	position.y = randf() * get_viewport().size.y
 	# Init velocity
 	velocity.x = (randf() * (MAX_DEFAULT_VELOCITY * 2)) - MAX_DEFAULT_VELOCITY
 	velocity.y = (randf() * (MAX_DEFAULT_VELOCITY * 2)) - MAX_DEFAULT_VELOCITY
@@ -40,9 +37,9 @@ func _ready():
 	r = BODY_RADIUS
 
 func _draw():
-	pass
-#    draw_line(Vector2(0,0), velocity * 10, Color(255, 0, 0), 1)
-#    draw_line(Vector2(0,0), steerForce * 10, Color(0, 255, 0), 1)
+#	pass
+    draw_line(Vector2(0,0), velocity * 10, Color(255, 0, 0), 1)
+    draw_line(Vector2(0,0), data.steerForce * 30, Color(0, 255, 0), 1)
 	
 ##################################################
 # PROCESS
@@ -51,21 +48,22 @@ func _process(delta):
 	
 	# Sense
 	futurePos = sense.futurePos()
-	otherShips = sense.otherShips()
-	shipCollisions = sense.shipCollisions(otherShips)
+	shipCollisions = sense.shipCollisions()
+	wallCollisions = sense.wallCollisions()
 	
 	# Steer
 #	steer.wander()
-	steer.seek("mouse")
-#	if position.distance_to(get_viewport().get_mouse_position()) < 100:
-#		steer.flee("mouse")
+#	steer.seek("mouse")
+	steer.seek(plan.targets[0])
+#	steer.flee("mouse")
 	if shipCollisions.size() > 0:
 		steer.avoid(shipCollisions)
+	if wallCollisions.size() > 0:
+		steer.avoid(wallCollisions)
 	steer.update()
 	
 	# Other
-	edge()
-	sprite.rotation = velocity.angle()
+#	edge()
 	# Reset
 	shipCollisions = []
 	update()
@@ -83,5 +81,6 @@ func edge():
 	if position.y < 0:
 		position.y = get_viewport().size.y
 
-func test():
-	print("TEST ==> Ship id ", id)
+func terminate():
+	sense.world.ships.erase(self)
+	self.queue_free()
