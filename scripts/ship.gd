@@ -9,7 +9,7 @@ onready var data = get_node("Data") # Data storage
 # CONFIG
 export var MAX_DEFAULT_VELOCITY = 1 # Length on each axis
 export var MAX_SPEED_ADD = 1.5 # Added to initial velocity
-export var BODY_RADIUS = 20 # Body radius for collision avoidance
+export var BODY_RADIUS = 18 # Body radius for collision avoidance
 
 # META
 var id # Ship's id

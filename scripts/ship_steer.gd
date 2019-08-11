@@ -10,9 +10,11 @@ onready var host = get_parent()
 
 # Global steering force
 var steer = Vector2()
+var brake = Vector2()
 
 # Global Config
 export var MAX_FORCE = 0.5   # Multiplier for accumulated steering force
+export var MAX_BRAKING_FORCE = 0.1
  # Config for single behaviors
 export var SLOWING_RADIUS = 100   # Seek // Radius when starting to slow down
 export var CIRCLE_DISTANCE = 2   # Wander // Mutiplied with maxSpeed
@@ -26,6 +28,9 @@ func update():
 	steer = steer.clamped(MAX_FORCE)
 	host.data.steerForce = steer
 	host.velocity += steer
+	# Apply brake to Velocity
+	brake = brake.clamped(MAX_BRAKING_FORCE)
+	host.velocity += brake
 	# Move based on velocity
 	host.velocity = host.velocity.clamped(host.maxSpeed)
 	host.position += host.velocity
@@ -64,6 +69,11 @@ func wander():
 #####################################################
 # APPLY BEHAVIORS TO THE ACCUMULATED STEERING FORCE
 
+# BRAKE
+# Brake when collisions are detected
+func brake():
+	brake += host.velocity * -1
+
 # SEEK
 # Seek a target
 func applySeek(_target :Vector2):
@@ -100,6 +110,7 @@ func applyAvoid(_obstacles :Array): # Takes Vectors
 				mostThreatening = o
 	force = host.futurePos - mostThreatening
 	steer += force
+	brake()
 
 # WANDER
 # Wander around with a small random displacement each frame

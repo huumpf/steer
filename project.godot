@@ -19,6 +19,13 @@ config/name="Steering Management"
 run/main_scene="res://world.tscn"
 config/icon="res://img/icon.png"
 
+[input]
+
+scroll={
+"deadzone": 0.5,
+"events": [  ]
+}
+
 [rendering]
 
 environment/default_clear_color=Color( 0.0745098, 0.0862745, 0.12549, 1 )
