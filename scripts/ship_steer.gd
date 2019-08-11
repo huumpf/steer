@@ -14,11 +14,10 @@ var brake = Vector2()
 
 # Global Config
 export var MAX_FORCE = 0.5   # Multiplier for accumulated steering force
-export var MAX_BRAKING_FORCE = 0.1
+export var MAX_BRAKING_FORCE = 0.01 # Multiplier for negative Velocity
  # Config for single behaviors
 export var SLOWING_RADIUS = 100   # Seek // Radius when starting to slow down
 export var CIRCLE_DISTANCE = 2   # Wander // Mutiplied with maxSpeed
-export var BRAKE_MULT = 0.8   # Brake // Multiplier for braking force
 
 #####################################################
 # MOVE BASED ON STEER AND BRAKE

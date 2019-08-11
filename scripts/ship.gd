@@ -4,10 +4,11 @@ extends Node2D
 onready var steer = get_node("Steer") # Scripts for steering behaviors
 onready var sense = get_node("Sense") # Scripts for sensing own surrounding
 onready var plan = get_node("Plan") # Scripts for making plans on what to do
+onready var sprite = get_node("Sprite") # Scripts for making plans on what to do
 onready var data = get_node("Data") # Data storage
 
 # CONFIG
-export var MAX_DEFAULT_VELOCITY = 1 # Length on each axis
+export var MAX_DEFAULT_VELOCITY = 0.2 # Length on each axis
 export var MAX_SPEED_ADD = 1.5 # Added to initial velocity
 export var BODY_RADIUS = 18 # Body radius for collision avoidance
 
